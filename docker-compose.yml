@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  todo_database:
+    image: postgres:alpine
+    ports:
+      - '5432:5432'
+    volumes:
+      - todo-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: Toor@1234
+      POSTGRES_DB: db_todo
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+
+volumes:
+  todo-data:
