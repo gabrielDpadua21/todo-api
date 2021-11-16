@@ -9,6 +9,9 @@ const mockTaskRepository = () => ({
     createTask: jest.fn(),
     findTaskById: jest.fn(),
     updateTask: jest.fn(),
+    deleteTask: jest.fn(),
+    findAllTasks: jest.fn(),
+    findAllTasksByName: jest.fn(),
 });
 
 describe('Tasks Service Tests', () => {
@@ -69,6 +72,53 @@ describe('Tasks Service Tests', () => {
                 mockUpdateDto,
             );
             expect(task).toEqual('mockUpdateTask');
+        });
+    });
+
+    describe('Delete Task', () => {
+        let mockTask: Task;
+
+        beforeEach(() => {
+            mockTask = new Task();
+            mockTask.id = 1;
+        });
+
+        it('Should delete a task', async () => {
+            repository.deleteTask.mockResolvedValue(1);
+            const result = await service.delete(1);
+            expect(repository.deleteTask).toHaveBeenCalledWith(1);
+            expect(result).toBeTruthy();
+        });
+    });
+
+    describe('Find tasks', () => {
+        let mockTask: Task;
+
+        beforeEach(() => {
+            mockTask = new Task();
+            mockTask.id = 1;
+            mockTask.name = 'mock';
+        });
+
+        it('Should find a task by id', async () => {
+            repository.findTaskById.mockResolvedValue(mockTask);
+            const task = await service.findById(1);
+            expect(repository.findTaskById).toHaveBeenCalledWith(1);
+            expect(task.id).toEqual(1);
+        });
+
+        it('Should find all tasks', async () => {
+            repository.findAllTasks.mockResolvedValue([mockTask]);
+            const tasks = await service.findAll();
+            expect(repository.findAllTasks).toBeCalled();
+            expect(tasks.length).toEqual(1);
+        });
+
+        it('Should find all tasks by name', async () => {
+            repository.findAllTasksByName.mockResolvedValue([mockTask]);
+            const tasks = await service.findAllByName('mock');
+            expect(repository.findAllTasksByName).toHaveBeenCalledWith('mock');
+            expect(tasks.length).toEqual(1);
         });
     });
 });
