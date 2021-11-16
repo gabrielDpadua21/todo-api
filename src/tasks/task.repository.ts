@@ -33,7 +33,14 @@ export class TaskRepository extends Repository<Task> {
 
     async findTaskById(id: number): Promise<Task> {
         const task = await this.findOne(id, {
-            select: ['name', 'description', 'status', 'createdAt', 'updatedAt'],
+            select: [
+                'id',
+                'name',
+                'description',
+                'status',
+                'createdAt',
+                'updatedAt',
+            ],
         });
         if (!task) throw new NotFoundException('Task not found');
         return task;
@@ -41,7 +48,7 @@ export class TaskRepository extends Repository<Task> {
 
     async findAllTasks(): Promise<Task[]> {
         return await this.find({
-            select: ['name', 'status', 'createdAt', 'updatedAt'],
+            select: ['id', 'name', 'status', 'createdAt', 'updatedAt'],
         });
     }
 
