@@ -2,7 +2,7 @@ import {
     InternalServerErrorException,
     NotFoundException,
 } from '@nestjs/common';
-import { EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, Like, Repository } from 'typeorm';
 import { CreateTaskDto } from './dtos/create-task.dto';
 import { ResponseTaskDto } from './dtos/response-task.dto';
 import { Task } from './task.entity';
@@ -19,6 +19,7 @@ export class TaskRepository extends Repository<Task> {
         try {
             await task.save();
             return new ResponseTaskDto(
+                task.id,
                 task.name,
                 task.status,
                 task.createdAt,
@@ -32,10 +33,22 @@ export class TaskRepository extends Repository<Task> {
 
     async findTaskById(id: number): Promise<Task> {
         const task = await this.findOne(id, {
-            select: ['name', 'description', 'status'],
+            select: ['name', 'description', 'status', 'createdAt', 'updatedAt'],
         });
         if (!task) throw new NotFoundException('Task not found');
         return task;
+    }
+
+    async findAllTasks(): Promise<Task[]> {
+        return await this.find({
+            select: ['name', 'status', 'createdAt', 'updatedAt'],
+        });
+    }
+
+    async findAllTasksByName(name: string): Promise<Task[]> {
+        return await this.find({
+            name: Like(`%${name}%`),
+        });
     }
 
     async updateTask(
@@ -48,6 +61,7 @@ export class TaskRepository extends Repository<Task> {
         try {
             await task.save();
             return new ResponseTaskDto(
+                task.id,
                 task.name,
                 task.status,
                 task.createdAt,
@@ -57,5 +71,10 @@ export class TaskRepository extends Repository<Task> {
         } catch (err) {
             throw new InternalServerErrorException('Error to update task');
         }
+    }
+
+    async deleteTask(id: number): Promise<number> {
+        const result = await this.delete({ id: id });
+        return result.affected;
     }
 }
